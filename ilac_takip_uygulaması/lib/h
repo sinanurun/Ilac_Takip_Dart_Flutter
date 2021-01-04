@@ -1,0 +1,26 @@
+ScheduleController controller;
+          Future get(String key) async {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            return prefs.get(key);
+          }
+
+          Future save(String key, String value) async {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            prefs.setString(key, value);
+          }
+          controller = ScheduleController([
+            Schedule(
+              timeOutRunOnce: true,
+              timing: [0],
+              readFn: () async => await get(newIlac.ilac_adi),
+              writeFn: (String data) async {
+                debugPrint(data);
+                await save(newIlac.ilac_adi, data);
+              },
+              callback: () async{
+                      await kullanimEkle;
+                debugPrint('schedule');
+              },
+            ),
+          ]);
+          controller.run();

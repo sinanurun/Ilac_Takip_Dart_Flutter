@@ -1,0 +1,49 @@
+FutureBuilder<List<Ilac>>(
+        // future olarak database sınıfımızdaki bütün kelimeleri getir
+        // adlı methodunu verdik
+        future: DBHelper().getAllIlaclar(),
+        builder: (BuildContext context, AsyncSnapshot<List<Ilac>> snapshot) {
+          // eğer verdiğimiz future içerisinde veri var ise bunları
+          if (snapshot.hasData) {
+            return ListView.builder(
+              itemCount: snapshot.data.length,
+              itemBuilder: (BuildContext context, int index) {
+                Ilac item = snapshot.data[index];
+                return Dismissible(
+                  key: UniqueKey(),
+                  background: Container(color: Colors.red),
+                  onDismissed: (direction) {
+                    DBHelper().deleteIlac(item.ilac_id);
+                  },
+                  child: ListTile(
+                    title: Text(item.ilac_adi,style: TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: RichText(
+                      text: TextSpan(
+                        text: item.ilac_aciklama,
+                        style: DefaultTextStyle.of(context).style,
+                        children: <TextSpan>[
+                          TextSpan(text: ' / ', style: TextStyle(fontWeight: FontWeight.bold)),
+                          TextSpan(text: item.ilac_kullanim_tipi),
+                        ],
+                      ),
+                    ),
+
+                    leading: Text(item.ilac_id.toString()),
+                    trailing: Checkbox(
+                      onChanged: (bool value) {
+                        DBHelper().blockOrUnblock(item);
+                        setState(() {});
+                      },
+                      value: item.blocked,
+                    ),
+                  ),
+                );
+              },
+            );
+            // veri yok ise ekran ortasında dönen progressindicator göster
+          } else {
+            return Center(child:
+              Text("Almanız Gereken Bir İlaç Bulunmamaktadır"),);
+          }
+        },
+      ),
